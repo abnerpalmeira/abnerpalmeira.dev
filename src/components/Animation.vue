@@ -52,15 +52,19 @@ export default {
   },
   methods: {
     triggerAnimation: function() {
-      this.timeLine.pause()
       if(!this.flag){
+        this.timeLine.clear()
         this.timeLine.resume()
+        this.flag = true
         this.timeLine.add(this.animate(0,50,'T1',this.polygons,0.5,0.5,0,0))
         this.timeLine.add(this.animate(50,200,'T2',this.polygons,3,4,-2,4))
         this.timeLine.add(this.animate(200,500,'T3',this.polygons,2,8,-10,20))
       }
       else{
         this.flag = false
+        this.timeLine.clear()
+        this.timeLine.resume()
+        this.timeLine.add(this.animate(0,500,'T1',this.randomizedPolygons,0.5,0.5,0,0))
       }
     },
     animate: function(start,end,stage,polygons,durationStart,durationEnd,offsetStart,offsetEnd){
