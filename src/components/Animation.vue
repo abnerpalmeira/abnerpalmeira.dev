@@ -12,13 +12,14 @@
 
 <script>
 
-import {TimelineMax,Elastic} from 'gsap'
+import {TimelineMax,Power4} from 'gsap'
 import json from './polygons.json'
 
 export default {
   name: 'Animation',
   data(){
     return{
+      flag: false,
       polygons: json,
       randomizedPolygons: [],
       timeLine: new TimelineMax(),
@@ -51,17 +52,53 @@ export default {
   },
   methods: {
     animate: function() {
-      for (var i = 0; i < 100; i++) {
-        this.timeLine.to(
-          `#polygon-${i}`,
-          0.1,
-          {
-            attr: {
-              points: this.convertPoints(this.polygons[i]['data'])
-            },
-            ease:Elastic.easeOut
-          })
+      this.timeLine.pause()
+      if(!this.flag){
+        this.timeLine.resume()
+        this.flag = true
+        this.timeLine.add('T1')
+        for (var i = 0; i < 50; i++) {
+          this.timeLine.to(
+            `#polygon-${i}`,
+            0.5,
+            {
+              attr: {
+                points: this.convertPoints(this.polygons[i]['data'])
+              },
+              ease:Power4.easeOut
+            },'T1')
+        }
+
+        this.timeLine.add('T2')
+        for (i = 50; i < 200; i++) {
+          this.timeLine.to(
+            `#polygon-${i}`,
+            this.randomFloat(3,4),
+            {
+              attr: {
+                points: this.convertPoints(this.polygons[i]['data'])
+              },
+              ease:Power4.easeOut
+            },`T2+=${this.randomFloat(-2,4)}`)
+        }
+
+        this.timeLine.add('T3')
+        for (i = 200; i < 500; i++) {
+          this.timeLine.to(
+            `#polygon-${i}`,
+            this.randomFloat(2,8),
+            {
+              attr: {
+                points: this.convertPoints(this.polygons[i]['data'])
+              },
+              ease:Power4.easeOut
+            },`T3+=${this.randomFloat(-5,20)}`)
+        }
       }
+      else{
+        this.flag = false
+      }
+
       //alert('cliquei')
     },
     convertPoints: function(data) {
@@ -73,6 +110,9 @@ export default {
     randomInt: function(min, max) {
       return min + Math.floor((max - min) * Math.random());
     },
+    randomFloat: function(min, max) {
+      return min + (max - min) * Math.random();
+    }
   },
   props: {
     msg: String
