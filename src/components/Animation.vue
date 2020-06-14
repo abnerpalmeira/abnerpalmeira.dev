@@ -1,5 +1,5 @@
 <template>
-  <svg v-on:click="animate" height="100vh" width="100%" viewBox="0 0 385 531" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+  <svg v-on:click="triggerAnimation" height="100vh" width="100%" viewBox="0 0 385 531" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
     <polygon 
       v-for="(polygon,index) in randomizedPolygons" :key="`polygon-${index}`"
       :points="convertPoints(polygon.data)"
@@ -51,55 +51,37 @@ export default {
     }
   },
   methods: {
-    animate: function() {
+    triggerAnimation: function() {
       this.timeLine.pause()
       if(!this.flag){
         this.timeLine.resume()
-        this.flag = true
-        this.timeLine.add('T1')
-        for (var i = 0; i < 50; i++) {
-          this.timeLine.to(
-            `#polygon-${i}`,
-            0.5,
-            {
-              attr: {
-                points: this.convertPoints(this.polygons[i]['data'])
-              },
-              ease:Power4.easeOut
-            },'T1')
-        }
-
-        this.timeLine.add('T2')
-        for (i = 50; i < 200; i++) {
-          this.timeLine.to(
-            `#polygon-${i}`,
-            this.randomFloat(3,4),
-            {
-              attr: {
-                points: this.convertPoints(this.polygons[i]['data'])
-              },
-              ease:Power4.easeOut
-            },`T2+=${this.randomFloat(-2,4)}`)
-        }
-
-        this.timeLine.add('T3')
-        for (i = 200; i < 500; i++) {
-          this.timeLine.to(
-            `#polygon-${i}`,
-            this.randomFloat(2,8),
-            {
-              attr: {
-                points: this.convertPoints(this.polygons[i]['data'])
-              },
-              ease:Power4.easeOut
-            },`T3+=${this.randomFloat(-5,20)}`)
-        }
+        this.timeLine.add(this.animate(0,50,'T1',this.polygons,0.5,0.5,0,0))
+        this.timeLine.add(this.animate(50,200,'T2',this.polygons,3,4,-2,4))
+        this.timeLine.add(this.animate(200,500,'T3',this.polygons,2,8,-10,20))
       }
       else{
         this.flag = false
       }
+    },
+    animate: function(start,end,stage,polygons,durationStart,durationEnd,offsetStart,offsetEnd){
+      
+      var newTimeLine =  new TimelineMax()
 
-      //alert('cliquei')
+      newTimeLine.add(stage)
+      
+      for (var i = start; i < end; i++) {
+        this.timeLine.to(
+          `#polygon-${i}`,
+          this.randomFloat(durationStart,durationEnd),
+          {
+            attr: {
+              points: this.convertPoints(polygons[i]['data'])
+            },
+            ease:Power4.easeOut
+          },`${stage}+=${this.randomFloat(offsetStart,offsetEnd)}`)
+      }
+
+      return newTimeLine
     },
     convertPoints: function(data) {
       return `${data[0]},${data[1]} ${data[2]},${data[3]} ${data[4]},${data[5]}`
